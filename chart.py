@@ -1,41 +1,39 @@
-# chart.py
-
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from PIL import Image
 
 # Set Seaborn style
 sns.set_style("whitegrid")
 sns.set_context("talk")
 
-# Generate synthetic customer data
+# Create synthetic dataset
 np.random.seed(42)
-
-# Example customer segments
-segments = ['Premium', 'Gold', 'Silver', 'Bronze']
-data = {
-    'Segment': np.random.choice(segments, 400),
-    'PurchaseAmount': np.concatenate([
-        np.random.normal(500, 50, 100),   # Premium
-        np.random.normal(400, 60, 100),   # Gold
-        np.random.normal(300, 70, 100),   # Silver
-        np.random.normal(200, 80, 100)    # Bronze
+n = 300
+df = pd.DataFrame({
+    "Customer Segment": np.random.choice(["Premium", "Standard", "Budget"], size=n),
+    "Purchase Amount": np.concatenate([
+        np.random.normal(500, 50, 100),
+        np.random.normal(300, 40, 100),
+        np.random.normal(150, 30, 100)
     ])
-}
+})
 
-df = pd.DataFrame(data)
+# Create the plot (figsize in inches)
+fig = plt.figure(figsize=(8, 8), dpi=64)  # 8*64 = 512
+sns.boxplot(data=df, x="Customer Segment", y="Purchase Amount", palette="Set2")
 
-# Create the figure (512x512 pixels => 8x8 inches at 64 dpi)
-plt.figure(figsize=(8, 8))
-
-# Create boxplot
-sns.boxplot(data=df, x='Segment', y='PurchaseAmount', palette='pastel')
-
-# Title and labels
-plt.title("Customer Purchase Amounts by Segment")
+# Add titles and labels
+plt.title("Purchase Amount Distribution by Customer Segment")
 plt.xlabel("Customer Segment")
 plt.ylabel("Purchase Amount ($)")
 
-# Save chart as PNG
-plt.savefig("chart.png", dpi=64, bbox_inches='tight')
+# Save without bbox trimming
+temp_file = "chart_temp.png"
+fig.savefig(temp_file, dpi=64)  # Might be slightly off
+
+# ✅ Resize to exactly 512x512 using Pillow
+img = Image.open(temp_file)
+img = img.resize((512, 512))
+img.save("chart.png")
